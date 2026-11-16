@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vokabeltrainer Prima plus A2 (Probe)</title>
+<style>
+:root{--bg:#f2f6f8;--fg:#16262e;--card:#fff;--ac:#0b6e8a;--ok:#1b8a57;--bad:#c2412d;--mut:#5d717b;--bd:#d3dde2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#101b21;--fg:#e6eef2;--card:#18272f;--ac:#5cc0dc;--ok:#4cc98a;--bad:#ff8a74;--mut:#9ab0ba;--bd:#2c3f49}}
+:root[data-theme=dark]{--bg:#101b21;--fg:#e6eef2;--card:#18272f;--ac:#5cc0dc;--ok:#4cc98a;--bad:#ff8a74;--mut:#9ab0ba;--bd:#2c3f49}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--fg);font:18px/1.45 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:640px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:26px;margin:8px 0 4px}h2{font-size:20px;margin:18px 0 8px}
+p{margin:6px 0}.mut{color:var(--mut);font-size:15px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;margin:12px 0}
+button,select,input{font:inherit;color:inherit}
+button{min-height:48px;padding:0 20px;border-radius:12px;border:1px solid var(--bd);background:var(--card);cursor:pointer}
+button.pri{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:700}
+:root:not([data-theme=light]) button.pri{color:#06222b}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+input,select{width:100%;box-sizing:border-box;min-height:50px;padding:0 14px;border-radius:12px;border:2px solid var(--bd);background:var(--card);font-size:20px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-width:84px;text-align:left;padding:8px 14px;line-height:1.25}
+.chip.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+:root:not([data-theme=light]) .chip.on{color:#06222b}
+.chip small{display:block;font-size:13px;opacity:.85}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.tr{font-size:34px;font-weight:700;margin:6px 0 2px;line-height:1.2}
+.tag{display:inline-block;font-size:14px;color:var(--mut);border:1px solid var(--bd);border-radius:8px;padding:1px 8px}
+.mask{font:700 24px/1.3 ui-monospace,Menlo,monospace;letter-spacing:3px;margin:10px 0;min-height:32px}
+.bar{height:8px;background:var(--bd);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
+.good{color:var(--ok)}.badc{color:var(--bad)}
+.msg{min-height:26px;font-weight:700;margin-top:10px}
+li{margin:4px 0}
+</style></head><body><main id="app"></main>
+<script>
+const LANGS=[['en','Englisch'],['sq','Albanisch'],['tr','Türkisch'],['pt','Portugiesisch'],['fa','Dari'],['vi','Vietnamesisch'],['bn','Bengalisch / Bangla'],['uk','Ukrainisch']];
+// Reihenfolge der Übersetzungen: en, sq, tr, pt, Dari, vi, bn, uk
+const RAW=[
+[1,'n','die Idee|die Ideen',['idea','ideja','fikir','ideia','ایده','ý tưởng','ধারণা','ідея']],
+[1,'n','der Rucksack|die Rucksäcke',['backpack','çanta shpine','sırt çantası','mochila','کوله‌پشتی','ba lô','ব্যাকপ্যাক','рюкзак']],
+[1,'a','kalt|kälter|am kältesten',['cold','i ftohtë','soğuk','frio','سرد','lạnh','ঠান্ডা','холодний']],
+[2,'n','die Arbeit|die Arbeiten',['work','punë','iş','trabalho','کار','công việc','কাজ','робота']],
+[2,'n','der Kollege|die Kollegen',['colleague (male)','koleg','iş arkadaşı (erkek)','colega','همکار','đồng nghiệp','সহকর্মী','колега']],
+[2,'n','die Angst|die Ängste',['fear','frikë','korku','medo','ترس','nỗi sợ','ভয়','страх']],
+[2,'v','aufhören|du hörst auf',['to stop','ndaloj','bitirmek, durmak','parar','تمام کردن، ایستادن','dừng lại','থামা','припиняти']],
+[2,'v','erfinden|du erfindest',['to invent','shpik','icat etmek','inventar','اختراع کردن','phát minh','আবিষ্কার করা','винаходити']],
+[2,'a','nervös|nervöser|am nervösesten',['nervous','nervoz','gergin','nervoso','عصبی','lo lắng','নার্ভাস','нервовий']],
+[3,'n','die Freundschaft|die Freundschaften',['friendship','miqësi','arkadaşlık','amizade','دوستی','tình bạn','বন্ধুত্ব','дружба']],
+[3,'n','das Gebäude|die Gebäude',['building','ndërtesë','bina','edifício','ساختمان','tòa nhà','ভবন','будівля']],
+[3,'a','nett|netter|am nettesten',['nice, kind','i këndshëm','nazik, hoş','simpático','مهربان','tử tế','ভালো, সদয়','милий']],
+[3,'a','ehrlich|ehrlicher|am ehrlichsten',['honest','i ndershëm','dürüst','honesto','صادق','trung thực','সৎ','чесний']],
+[4,'n','das Licht|die Lichter',['light','dritë','ışık','luz','نور','ánh sáng','আলো','світло']],
+[4,'v','abgeben|du gibst ab',['to hand in','dorëzoj','teslim etmek','entregar','تحویل دادن','nộp','জমা দেওয়া','здавати']],
+[4,'v','einfallen|du fällst ein',['to occur to (someone)','më vjen në mendje','aklına gelmek','ocorrer (a alguém)','به ذهن رسیدن','chợt nghĩ ra','মনে আসা','спадати на думку']],
+[5,'n','der Chor|die Chöre',['choir','kor','koro','coro','گروه کر','dàn hợp xướng','কোরাস, গায়কদল','хор']],
+[5,'a','einsam|einsamer|am einsamsten',['lonely','i vetmuar','yalnız','solitário','تنها','cô đơn','একাকী','самотній']],
+[6,'n','der Gürtel|die Gürtel',['belt','rrip','kemer','cinto','کمربند','thắt lưng','বেল্ট','пасок']],
+[6,'n','der Stiefel|die Stiefel',['boot','çizme','bot, çizme','bota','چکمه','ủng','বুট জুতা','чобіт']],
+[7,'n','der Keller|die Keller',['cellar, basement','bodrum','bodrum','porão','زیرزمین','tầng hầm','মাটির নিচের ঘর','підвал']],
+[7,'n','der Spielplatz|die Spielplätze',['playground','fushë lojrash','oyun parkı','parque infantil','زمین بازی','sân chơi','খেলার মাঠ','ігровий майданчик']],
+[7,'a','frisch|frischer|am frischesten',['fresh','i freskët','taze','fresco','تازه','tươi','তাজা','свіжий']],
+[7,'v','küssen|du küsst',['to kiss','puth','öpmek','beijar','بوسیدن','hôn','চুমু খাওয়া','цілувати']]
+];
+const LBL={n:['Deutsch mit Artikel','Plural mit Artikel'],v:['Infinitiv','du-Form im Präsens'],a:['Grundform','Komparativ','Superlativ']};
+const TYPE={n:'Nomen',v:'Verb',a:'Adjektiv'};
+const W=RAW.map((r,i)=>({id:'a2-'+i,l:r[0],t:r[1],st:r[2].split('|'),tr:r[3]}));
+const $=s=>document.querySelector(s);
+let db={};try{db=JSON.parse(localStorage.getItem('vt2')||'{}')}catch(e){}
+const save=()=>{try{localStorage.setItem('vt2',JSON.stringify(db))}catch(e){}};
+let U=null,sel=new Set([1,2]),S=null;
+const norm=s=>s.trim().toLowerCase().replace(/\s+/g,' ').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss');
+function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='de-DE';u.rate=.85;const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.replace('_','-').startsWith('de'));if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}}
+function mask(a,k){let c=0;return[...a].map(ch=>ch===' '?'\u2003':(c++<k?ch:'•')).join(' ')}
+function login(){
+ $('#app').innerHTML=`<h1>Vokabeltrainer</h1><p class="mut">Prima plus A2, Probe mit Lektion 1 bis 7</p>
+ <div class="card"><p><label for="k">Dein Kürzel</label></p><input id="k" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+ <p style="margin-top:14px"><label for="sp">Deine Muttersprache</label></p><select id="sp">${LANGS.map((l,i)=>`<option value="${i}">${l[1]}</option>`).join('')}</select>
+ <div class="row"><button class="pri" id="go">Weiter</button></div><p class="mut">Dein Fortschritt wird unter deinem Kürzel auf diesem iPad gespeichert.</p></div>`;
+ $('#go').onclick=()=>{const k=$('#k').value.trim().toLowerCase();if(!k){$('#k').focus();return}
+  U=db[k]=db[k]||{w:{},retry:{},hist:[],next:20};U.name=k;U.li=+$('#sp').value;if(db[k].li===undefined)U.li=+$('#sp').value;save();home()};
+}
+function home(){
+ const st=l=>{const ws=W.filter(w=>w.l===l);return ws.filter(w=>(U.w[w.id]||{b:0}).b>=3).length+' / '+ws.length};
+ const rt=Object.keys(U.retry).filter(k=>U.retry[k]>0).length;
+ $('#app').innerHTML=`<h1>Hallo ${U.name}</h1><p class="mut">Sprache: ${LANGS[U.li][1]}</p>
+ <div class="card"><h2 style="margin-top:0">Welche Lektionen möchtest du üben?</h2><div class="chips">${[1,2,3,4,5,6,7].map(l=>`<button class="chip ${sel.has(l)?'on':''}" data-l="${l}">Lektion ${l}<small>sicher: ${st(l)}</small></button>`).join('')}</div>
+ <div class="row"><button class="pri" id="st" ${sel.size?'':'disabled'}>Üben starten</button><button id="lo">Anderes Kürzel</button></div>
+ <p class="mut">Nächste Einheit: bis zu ${U.next} Wörter${rt?`, dazu ${rt} Wörter zum Wiederholen`:''}.</p></div>`;
+ document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const l=+b.dataset.l;sel.has(l)?sel.delete(l):sel.add(l);home()});
+ $('#st').onclick=start;$('#lo').onclick=login;
+}
+function start(){
+ const pool=W.filter(w=>sel.has(w.l));
+ const rt=pool.filter(w=>U.retry[w.id]>0);
+ let rest=pool.filter(w=>!(U.retry[w.id]>0)).map(w=>{const b=(U.w[w.id]||{b:0}).b;return{w,s:Math.pow(6-b,2)*Math.random()*(b>=4?.25:1)}}).sort((a,b)=>b.s-a.s).map(x=>x.w);
+ let q=rt.concat(rest).slice(0,Math.min(U.next,pool.length));
+ q=q.sort(()=>Math.random()-.5);
+ S={q,i:0,step:0,h:0,wrong:0,rev:false,t0:Date.now(),wt:0,res:[],fb:false};show();
+}
+function show(){
+ const w=S.q[S.i],n=w.st.length,ans=w.st[S.step];
+ const k=S.h<=0?0:S.h===1?1:S.h===2?2:Math.ceil(ans.replace(/ /g,'').length/2);
+ const rtl=LANGS[U.li][0]==='fa';
+ $('#app').innerHTML=`<div class="bar"><i style="width:${S.i/S.q.length*100}%"></i></div><p class="mut">Wort ${S.i+1} von ${S.q.length}</p>
+ <div class="card"><span class="tag">${TYPE[w.t]} · Lektion ${w.l}</span>
+ <div class="tr" ${rtl?'dir="rtl"':''}>${w.tr[U.li]}</div>
+ <p class="mut">${LBL[w.t][S.step]}${n>1?` (${S.step+1} von ${n})`:''}</p>
+ <div class="mask" aria-label="Hilfe">${S.fb||S.rev?ans:mask(ans,k)}</div>
+ <input id="in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" ${S.fb||S.rev?'disabled':''} aria-label="Antwort auf Deutsch">
+ <div class="msg" id="msg"></div>
+ <div class="row" id="btns"></div></div>`;
+ const b=$('#btns'),inp=$('#in'),msg=$('#msg');
+ if(S.fb||S.rev){
+  msg.className='msg '+(S.fb?'good':'badc');msg.textContent=S.fb?'Richtig!':'Die Lösung steht oben. Das Wort kommt bald wieder.';
+  b.innerHTML='<button id="sp">🔊 Anhören</button><button class="pri" id="nx">Weiter</button>';
+  $('#sp').onclick=()=>speak(ans);$('#nx').onclick=next;$('#nx').focus();if(S.fb)speak(ans);
+ }else{
+  b.innerHTML='<button class="pri" id="ck">Prüfen</button><button id="hp">Hilfe</button><button id="dk">Weiß ich nicht</button>';
+  $('#ck').onclick=check;$('#hp').onclick=()=>{S.h++;S.helped=(S.helped||0)+1;if(S.h>=4)reveal();else show()};$('#dk').onclick=reveal;
+  inp.onkeydown=e=>{if(e.key==='Enter')check()};inp.focus();
+ }
+}
+function reveal(){S.wt+=Date.now()-S.t0;S.rev=true;S.bad=true;show()}
+function check(){
+ const w=S.q[S.i],ans=w.st[S.step],v=$('#in').value;if(!v.trim())return;
+ if(norm(v)===norm(ans)){S.wt+=Date.now()-S.t0;S.fb=true;show()}
+ else{S.wrong++;S.h++;if(S.h>=4){reveal();return}show();$('#msg').className='msg badc';$('#msg').textContent='Noch nicht ganz. Hier ist ein Tipp.'}
+}
+function next(){
+ const w=S.q[S.i];
+ if(S.step<w.st.length-1){S.step++;S.fb=false;S.rev=false;S.h=0;S.t0=Date.now();show();return}
+ const avg=S.wt/1000/w.st.length;
+ const r=(S.bad||S.wrong>=2)?'bad':(S.wrong===0&&!(S.helped)&&avg<=8)?'good':'ok';
+ S.res.push({w,r,t:S.wt/1000});
+ S.i++;if(S.i>=S.q.length)return finish();
+ Object.assign(S,{step:0,h:0,wrong:0,rev:false,bad:false,helped:0,fb:false,wt:0,t0:Date.now()});show();
+}
+function finish(){
+ const ids=S.q.map(w=>w.id);
+ Object.keys(U.retry).forEach(k=>{U.retry[k]=Math.max(0,U.retry[k]-1)});
+ S.res.forEach(x=>{const o=U.w[x.w.id]=U.w[x.w.id]||{b:0,n:0,f:0};o.n++;
+  if(x.r==='good')o.b=Math.min(5,o.b+2);else if(x.r==='ok')o.b=Math.min(5,o.b+1);else{o.b=0;o.f++;U.retry[x.w.id]=2}
+  if(x.r!=='bad')U.retry[x.w.id]=0});
+ const n=S.res.length,g=S.res.filter(x=>x.r==='good').length,o=S.res.filter(x=>x.r==='ok').length,bd=S.res.filter(x=>x.r==='bad');
+ const acc=(g+o)/n,avg=S.res.reduce((a,x)=>a+x.t,0)/n;
+ U.next=(acc>=.85&&avg<=14)?30:20;U.hist.push({d:new Date().toISOString().slice(0,10),n,g,o,b:bd.length});save();
+ $('#app').innerHTML=`<h1>Geschafft!</h1><div class="card"><p>${n} Wörter geübt, durchschnittlich ${avg.toFixed(0)} Sekunden pro Wort.</p>
+ <p><span class="good">● sicher: ${g}</span> &nbsp; ● mit Hilfe richtig: ${o} &nbsp; <span class="badc">● noch üben: ${bd.length}</span></p>
+ ${bd.length?`<h2>Diese Wörter kommen bald wieder</h2><ul>${bd.map(x=>`<li>${x.w.st.join(', ')}</li>`).join('')}</ul>`:'<p>Alle Wörter waren richtig. Sehr gut!</p>'}
+ <p class="mut">Nächste Einheit: bis zu ${U.next} Wörter.</p>
+ <div class="row"><button class="pri" id="again">Nächste Einheit</button><button id="hm">Lektionen wählen</button></div></div>`;
+ $('#again').onclick=start;$('#hm').onclick=home;
+}
+login();
+</script></body></html>
